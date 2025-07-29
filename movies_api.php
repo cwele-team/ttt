@@ -15,13 +15,13 @@ try {
     // Pobierz wszystkie filmy z bazy danych wraz z kategoriami i autorami
     $stmt = $conn->prepare("
         SELECT f.id, f.tytul, f.opis, f.ocena_sr, f.czas_trwania, f.rok_produkcji, 
-               f.miniaturka_url, f.dostepne_jakosci, k.kategoria,
+               f.miniaturka_url, f.dostepne_jakosci, f.video_id, k.kategoria,
                GROUP_CONCAT(DISTINCT CONCAT(a.imie, ' ', a.nazwisko) SEPARATOR ', ') as autorzy
         FROM Filmy f
         LEFT JOIN Kategorie k ON f.kategoria = k.id
         LEFT JOIN Autorzy a ON f.id = a.film_id
         GROUP BY f.id, f.tytul, f.opis, f.ocena_sr, f.czas_trwania, f.rok_produkcji, 
-                 f.miniaturka_url, f.dostepne_jakosci, k.kategoria
+                 f.miniaturka_url, f.dostepne_jakosci, f.video_id, k.kategoria
         ORDER BY f.id DESC
     ");
     
@@ -93,7 +93,7 @@ try {
             'genre' => $genre,
             'description' => $row['opis'] ?: 'Brak opisu filmu.',
             'dateAdded' => date('Y-m-d'),
-            'videoUrl' => "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", // Placeholder
+            'videoId' => $row['video_id'], // MediaDelivery video ID
             'videoSources' => $qualities,
             'duration' => $durationFormatted,
             'categories' => $categories,

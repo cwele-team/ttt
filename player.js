@@ -1,15 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
       console.log('=== PLAYER.JS STARTING ===');
 
-      // Initialize everything once Plyr is loaded
+      // Initialize video player with MediaDelivery embed
       function initializePlayer() {
-        if (typeof Plyr === 'undefined') {
-          console.log('Waiting for Plyr to load...');
-          setTimeout(initializePlayer, 100);
-          return;
-        }
-
-        console.log('Plyr loaded, starting player initialization...');
+        console.log('Starting MediaDelivery embed player initialization...');
 
         // Function to check user authentication with multiple methods
         function getCurrentUser() {
@@ -68,208 +62,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentUser = getCurrentUser();
         console.log('🎯 FINAL RESULT - currentUser:', currentUser);
 
-        // Initialize Plyr with comprehensive configuration
-        const player = new Plyr('#moviePlayer', {
-          // Control bar settings
-          controls: [
-            'play-large', // Large play button in center
-            'restart', // Restart playback
-            'rewind', // Rewind by seekTime (default 10 seconds)
-            'play', // Play/pause playback
-            'fast-forward', // Fast forward by seekTime (default 10 seconds)
-            'progress', // Progress bar
-            'current-time', // Current time
-            'duration', // Duration
-            'mute', // Toggle mute
-            'volume', // Volume control
-            'captions', // Toggle captions
-            'settings', // Settings menu
-            'pip', // Picture-in-picture
-            'airplay', // Airplay (Safari only)
-            'fullscreen', // Toggle fullscreen
-          ],
-
-          // Accessibility settings
-          i18n: {
-            restart: 'Odtwórz od początku',
-            rewind: 'Przewiń do tyłu {seektime}s',
-            play: 'Odtwórz',
-            pause: 'Pauza',
-            fastForward: 'Przewiń do przodu {seektime}s',
-            seek: 'Przewiń do {seektime}',
-            seekLabel: '{currentTime} z {duration}',
-            played: 'Odtworzono',
-            buffered: 'Buforowano',
-            currentTime: 'Aktualny czas',
-            duration: 'Długość',
-            volume: 'Głośność',
-            mute: 'Wycisz',
-            unmute: 'Włącz dźwięk',
-            enableCaptions: 'Włącz napisy',
-            disableCaptions: 'Wyłącz napisy',
-            download: 'Pobierz',
-            enterFullscreen: 'Pełny ekran',
-            exitFullscreen: 'Wyjdź z pełnego ekranu',
-            frameTitle: 'Odtwarzacz dla {title}',
-            captions: 'Napisy',
-            settings: 'Ustawienia',
-            pip: 'Obraz w obrazie',
-            menuBack: 'Wróć do poprzedniego menu',
-            speed: 'Prędkość',
-            normal: 'Normalna',
-            quality: 'Jakość',
-            loop: 'Zapętlenie',
-            start: 'Start',
-            end: 'Koniec',
-            all: 'Wszystkie',
-            reset: 'Zresetuj',
-            disabled: 'Wyłączone',
-            enabled: 'Włączone',
-          },
-
-          // Keyboard shortcuts
-          keyboard: {
-            focused: true, // Only when player is focused
-            global: false, // Disable global shortcuts for better UX
-          },
-
-          // Tooltips
-          tooltips: {
-            controls: true, // Show control tooltips
-            seek: true, // Show seek tooltip
-          },
-
-          // Quality settings - Plyr automatically handles multiple sources
-          quality: {
-            default: 1080,
-            options: [1080, 720, 480, 360],
-            forced: false,
-            onChange: (quality) => {
-              console.log(`🎥 Jakość zmieniona na: ${quality}p`);
-
-              // Save quality preference
-              if (typeof localStorage !== 'undefined') {
-                localStorage.setItem('preferred_quality', quality);
-              }
-
-              // Show quality change notification
-              const notification = document.createElement('div');
-              notification.style.cssText = `
-                        position: fixed;
-                        top: 80px;
-                        right: 20px;
-                        background: rgba(0, 0, 0, 0.8);
-                        color: white;
-                        padding: 10px 15px;
-                        border-radius: 5px;
-                        z-index: 1000;
-                        font-size: 14px;
-                        border-left: 3px solid #4CAF50;
-                    `;
-              notification.textContent = `Jakość: ${quality}p`;
-              document.body.appendChild(notification);
-
-              setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.3s';
-                setTimeout(() => notification.remove(), 300);
-              }, 2000);
-            },
-          },
-
-          // Speed settings
-          speed: {
-            selected: 1,
-            options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
-          },
-
-          // Auto play settings (disabled for better UX)
-          autoplay: false,
-
-          // Click to play/pause
-          clickToPlay: true,
-
-          // Disable right-click context menu
-          disableContextMenu: true,
-
-          // Loading class
-          loadSprite: true,
-
-          // Seek time for rewind/fast-forward
-          seekTime: 10,
-
-          // Volume settings
-          volume: 1,
-          muted: false,
-
-          // Duration display
-          displayDuration: true,
-
-          // Invert time display
-          invertTime: true,
-
-          // Toggle invert time on click
-          toggleInvert: true,
-
-          // Ratio
-          ratio: '16:9',
-
-          // Storage for user settings
-          storage: {
-            enabled: true,
-            key: 'plyr',
-          },
-        });
-
-        // Add Plyr event listeners for better control and debugging
-        player.on('ready', () => {
-          console.log('🎬 Plyr player is ready');
-
-          // Set preferred quality if saved
-          const savedQuality = localStorage.getItem('preferred_quality');
-          if (savedQuality && player.quality) {
-            setTimeout(() => {
-              try {
-                player.quality = parseInt(savedQuality);
-                console.log(`🎥 Zastosowano zapisaną jakość: ${savedQuality}p`);
-              } catch (e) {
-                console.log('Could not set saved quality:', e);
-              }
-            }, 500);
-          }
-        });
-
-        player.on('loadstart', () => {
-          console.log('🔄 Video loading started');
-        });
-
-        player.on('loadeddata', () => {
-          console.log('✅ Video data loaded');
-        });
-
-        player.on('canplay', () => {
-          console.log('▶️ Video can start playing');
-        });
-
-        player.on('play', () => {
-          console.log('🎵 Video started playing');
-        });
-
-        player.on('pause', () => {
-          console.log('⏸️ Video paused');
-        });
-
-        player.on('ended', () => {
-          console.log('🏁 Video ended');
-        });
-
-        player.on('error', (event) => {
-          console.error('❌ Plyr error:', event);
-        });
-
-        player.on('statechange', (event) => {
-          console.log('🔄 Player state changed:', event.detail.code);
-        });
+        // Function to create MediaDelivery embed iframe
+        function createVideoEmbed(embedUrl, movieTitle) {
+          const videoPlayer = document.getElementById('moviePlayer');
+          const videoWrapper = videoPlayer.parentElement;
+          
+          // Replace video element with iframe
+          videoWrapper.innerHTML = `
+            <div class="embed-container" style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; background: #000; border-radius: 8px; overflow: hidden;">
+              <iframe 
+                src="${embedUrl}" 
+                title="${movieTitle}"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
+              </iframe>
+            </div>
+          `;
+          
+          console.log('✅ MediaDelivery embed created successfully');
+        }
+        
+        // Function to show loading state
+        function showLoadingState() {
+          const videoWrapper = document.querySelector('.video-player');
+          videoWrapper.innerHTML = `
+            <div class="video-loading" style="display: flex; justify-content: center; align-items: center; height: 400px; background: #1a1a1a; border-radius: 8px;">
+              <div style="text-align: center; color: #fff;">
+                <div style="margin-bottom: 1rem;">
+                  <i data-lucide="loader" style="width: 48px; height: 48px; animation: spin 1s linear infinite;"></i>
+                </div>
+                <p>Ładowanie odtwarzacza...</p>
+              </div>
+            </div>
+          `;
+          lucide.createIcons();
+        }
 
         // Get movie ID from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -368,126 +196,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (hasLicense) {
               console.log('✅ User has license - setting up player');
-              // Set video source using advanced Plyr API
-              if (movie.videoUrl) {
-                console.log('🎥 Setting up video source:', movie.videoUrl);
-
-                // Configure comprehensive Plyr source with multiple quality options
-                const sources = [];
-
-                // Use videoSources if available, otherwise fallback to videoUrl
-                if (movie.videoSources) {
-                  // Add sources from videoSources object
-                  if (movie.videoSources['1080p']) {
-                    sources.push({
-                      src: movie.videoSources['1080p'],
-                      type: 'video/mp4',
-                      size: 1080,
-                      label: '1080p HD',
-                    });
+              
+              // Show loading state
+              showLoadingState();
+              
+              // Generate embed URL with secure token
+              console.log('🎥 Generating secure embed URL for movie:', movieId);
+              
+              fetch(`generate_video_token.php?movieId=${movieId}`)
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    console.log('✅ Embed URL generated:', data.embedUrl);
+                    console.log('🔐 Token expires at:', data.expiresAt);
+                    
+                    // Create embed iframe
+                    createVideoEmbed(data.embedUrl, movie.title);
+                    
+                    // Show token expiration warning after 45 seconds (15 seconds before expiry)
+                    setTimeout(() => {
+                      const notification = document.createElement('div');
+                      notification.style.cssText = `
+                        position: fixed;
+                        top: 80px;
+                        right: 20px;
+                        background: rgba(255, 165, 0, 0.9);
+                        color: white;
+                        padding: 1rem 1.5rem;
+                        border-radius: 8px;
+                        z-index: 1000;
+                        max-width: 300px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                      `;
+                      notification.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
+                          <span>Token wygasa za 15 sekund. Odśwież stronę, aby kontynuować.</span>
+                        </div>
+                      `;
+                      document.body.appendChild(notification);
+                      lucide.createIcons();
+                      
+                      // Auto remove after 10 seconds
+                      setTimeout(() => {
+                        if (notification.parentNode) {
+                          notification.remove();
+                        }
+                      }, 10000);
+                    }, 45000); // 45 seconds
+                    
+                  } else {
+                    console.error('❌ Failed to generate embed URL:', data.error);
+                    const videoWrapper = document.querySelector('.video-player');
+                    videoWrapper.innerHTML = `
+                      <div class="video-unavailable" style="text-align: center; padding: 60px 20px; color: #fff; background: #1a1a1a; border-radius: 10px;">
+                        <div style="margin-bottom: 20px;">
+                          <i data-lucide="alert-circle" style="width: 64px; height: 64px; color: #ff6b6b; margin-bottom: 20px;"></i>
+                        </div>
+                        <h3 style="margin-bottom: 15px; color: #ff6b6b;">Błąd odtwarzacza</h3>
+                        <p style="margin-bottom: 10px; color: #ccc;">Nie udało się załadować odtwarzacza dla filmu "${movie.title}"</p>
+                        <p style="color: #888; font-size: 14px;">Błąd: ${data.error}</p>
+                        <button onclick="window.location.reload()" class="btn btn-primary" style="margin-top: 1rem;">
+                          <i data-lucide="refresh-cw"></i>
+                          <span>Spróbuj ponownie</span>
+                        </button>
+                      </div>
+                    `;
+                    lucide.createIcons();
                   }
-                  if (movie.videoSources['720p']) {
-                    sources.push({
-                      src: movie.videoSources['720p'],
-                      type: 'video/mp4',
-                      size: 720,
-                      label: '720p',
-                    });
-                  }
-                  if (movie.videoSources['480p']) {
-                    sources.push({
-                      src: movie.videoSources['480p'],
-                      type: 'video/mp4',
-                      size: 480,
-                      label: '480p',
-                    });
-                  }
-                  if (movie.videoSources['360p']) {
-                    sources.push({
-                      src: movie.videoSources['360p'],
-                      type: 'video/mp4',
-                      size: 360,
-                      label: '360p',
-                    });
-                  }
-                }
-
-                // Fallback to single source if no videoSources
-                if (sources.length === 0 && movie.videoUrl) {
-                  sources.push({
-                    src: movie.videoUrl,
-                    type: 'video/mp4',
-                    size: 1080,
-                    label: '1080p HD',
-                  });
-                }
-
-                const videoSource = {
-                  type: 'video',
-                  title: movie.title,
-                  poster: movie.imageUrl, // Use movie poster as video poster
-                  sources: sources,
-                  tracks: [
-                    // You can add subtitle tracks here if available
-                    // {
-                    //     kind: 'captions',
-                    //     label: 'Polski',
-                    //     srclang: 'pl',
-                    //     src: 'path/to/captions.vtt',
-                    //     default: true
-                    // }
-                  ],
-                };
-
-                console.log(
-                  '🎥 Configured video sources:',
-                  sources.length,
-                  'quality options'
-                );
-
-                // Set the source using Plyr API
-                player.source = videoSource;
-
-                console.log('✅ Video source configured successfully');
-
-                // Update quality indicator when quality changes
-                const qualityIndicator = document.getElementById(
-                  'qualityIndicator'
-                );
-                if (qualityIndicator && sources.length > 1) {
-                  qualityIndicator.style.display = 'block';
-                  qualityIndicator.textContent = player.quality + 'p';
-                }
-
-                // Listen for quality changes to update indicator
-                player.on('qualitychange', (event) => {
-                  console.log('Quality changed to:', event.detail.quality);
-                  if (qualityIndicator) {
-                    qualityIndicator.textContent = event.detail.quality + 'p';
-                  }
+                })
+                .catch(error => {
+                  console.error('❌ Error fetching embed URL:', error);
+                  const videoWrapper = document.querySelector('.video-player');
+                  videoWrapper.innerHTML = `
+                    <div class="video-unavailable" style="text-align: center; padding: 60px 20px; color: #fff; background: #1a1a1a; border-radius: 10px;">
+                      <div style="margin-bottom: 20px;">
+                        <i data-lucide="wifi-off" style="width: 64px; height: 64px; color: #ff6b6b; margin-bottom: 20px;"></i>
+                      </div>
+                      <h3 style="margin-bottom: 15px; color: #ff6b6b;">Błąd połączenia</h3>
+                      <p style="margin-bottom: 10px; color: #ccc;">Nie udało się połączyć z serwerem</p>
+                      <p style="color: #888; font-size: 14px;">Sprawdź połączenie internetowe i spróbuj ponownie</p>
+                      <button onclick="window.location.reload()" class="btn btn-primary" style="margin-top: 1rem;">
+                        <i data-lucide="refresh-cw"></i>
+                        <span>Spróbuj ponownie</span>
+                      </button>
+                    </div>
+                  `;
+                  lucide.createIcons();
                 });
-
-                // Log player state for debugging after a short delay
-                setTimeout(() => {
-                  console.log(
-                    '🎬 Player ready state:',
-                    player.media?.readyState || 'Not ready'
-                  );
-                  console.log('🎬 Player current source:', player.source);
-                  console.log('🎬 Player duration:', player.duration || 'Unknown');
-                  console.log('🎬 Player type:', player.type);
-                }, 1000);
-              } else {
-                console.log('❌ No video URL available for this movie');
-                const videoWrapper = document.querySelector('.video-player');
-                videoWrapper.innerHTML = `
-                            <div class="video-unavailable" style="text-align: center; padding: 60px 20px; color: #fff; background: #1a1a1a; border-radius: 10px;">
-                                <h3 style="margin-bottom: 15px; color: #ff6b6b;">Film niedostępny</h3>
-                                <p style="margin-bottom: 10px; color: #ccc;">Brak URL wideo dla filmu "${movie.title}"</p>
-                                <p style="color: #888; font-size: 14px;">Sprawdź konfigurację źródła wideo.</p>
-                            </div>
-                        `;
-              }
             } else {
               console.log(
                 '❌ User needs to purchase license - showing payment options'
@@ -560,25 +356,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize Lucide icons
         lucide.createIcons();
 
-        // Add global access to player for debugging
-        window.debugPlayer = player;
-        window.testPlayer = () => {
-          console.log('=== PLAYER DEBUG INFO ===');
-          console.log('Player object:', player);
-          console.log('Player type:', player.type);
-          console.log('Player source:', player.source);
-          console.log('Player duration:', player.duration);
-          console.log('Player current time:', player.currentTime);
-          console.log('Player ready state:', player.media?.readyState);
-          console.log('Player paused:', player.paused);
-          console.log('Player muted:', player.muted);
-          console.log('Player volume:', player.volume);
-          console.log('========================');
-          return player;
-        };
-
         console.log(
-          '🎬 Player initialization complete! Use window.testPlayer() for debugging.'
+          '🎬 MediaDelivery embed player initialization complete!'
         );
       }
 
